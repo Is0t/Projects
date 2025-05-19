@@ -358,7 +358,7 @@ mbti_info = {
    }
 @st.cache_resource
 def load_components():
-    model = joblib.load("models/mbti_lgbm_20250519_110324.pkl")
+    model = joblib.load("mbti_lgbm_20250519_110324.pkl")
     english_stopwords = stopwords.words("english")
     turkish_stopwords = stopwords.words("turkish")
     stop_words = set(english_stopwords + turkish_stopwords)
