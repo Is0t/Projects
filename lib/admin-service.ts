@@ -4,9 +4,12 @@ import { cookies } from "next/headers"
 import { revalidatePath } from "next/cache"
 
 // Token için güvenli bir cookie adı
-const TOKEN_COOKIE_NAME = "AAAAAAAAAAAAAAAAAAAAAGGB1AEAAAAArEb2S4wRAtORi56JOdQT6r74%2Fa4%3DB4kWlFG94zpzXWFxH9Ee8JSv0RSuJqdV83IlE0fkQnMz7pMBXg"
+const TOKEN_COOKIE_NAME =
+  "AAAAAAAAAAAAAAAAAAAAAGGB1AEAAAAArEb2S4wRAtORi56JOdQT6r74%2Fa4%3DB4kWlFG94zpzXWFxH9Ee8JSv0RSuJqdV83IlE0fkQnMz7pMBXg"
 // Model dosyası adı için cookie
 const MODEL_FILE_COOKIE_NAME = "mbti_model_file"
+// Model URL'si için cookie
+const MODEL_URL_COOKIE_NAME = "mbti_model_url"
 
 // Token'ı kaydetme
 export async function saveTwitterToken(token: string) {
@@ -81,6 +84,12 @@ export async function uploadModelFile(formData: FormData) {
 export async function getModelPath() {
   const modelFile = cookies().get(MODEL_FILE_COOKIE_NAME)
   return modelFile?.value
+}
+
+// Model URL'sini alma
+export async function getModelUrl() {
+  const modelUrl = cookies().get(MODEL_URL_COOKIE_NAME)
+  return modelUrl?.value
 }
 
 // Token'ın varlığını kontrol etme

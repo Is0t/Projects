@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache"
 import { fetchTweets } from "./twitter-service"
-import { getModelPath } from "./admin-service"
+import { getModelPath, getModelUrl } from "./admin-service"
 
 // Tweet analizi yapan fonksiyon
 export async function analyzeTweets(username: string, tweetCount: number) {
@@ -16,14 +16,22 @@ export async function analyzeTweets(username: string, tweetCount: number) {
 
     // Eğitilmiş modeli kontrol et
     const modelPath = await getModelPath()
+    const modelUrl = await getModelUrl()
     let mbtiType = ""
 
-    if (modelPath) {
+    if (modelPath && modelUrl) {
       console.log(`Eğitilmiş model kullanılıyor: ${modelPath}`)
+      console.log(`Model URL: ${modelUrl}`)
 
-      // PKL dosyasından tahmin yapma işlemi
-      // Not: Gerçek uygulamada, burada PKL dosyasını işleyecek bir servis kullanılmalıdır
-      // Örneğin: API endpoint, serverless function, veya edge function
+      // Gerçek bir uygulamada, burada modelUrl kullanarak PKL dosyasını işleyecek bir API çağrısı yapılabilir
+      // Örneğin:
+      // const response = await fetch('https://your-python-api.com/predict', {
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify({ text: allTweetText, modelUrl })
+      // });
+      // const result = await response.json();
+      // mbtiType = result.mbtiType;
 
       // Şimdilik basit bir simülasyon yapıyoruz
       mbtiType = await simulatePredictionWithModel(allTweetText)

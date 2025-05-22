@@ -10,20 +10,15 @@ import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { AlertCircle, CheckCircle2, Key, BrainCircuit } from "lucide-react"
-import { saveTwitterToken, uploadModelFile } from "@/lib/admin-service"
-import { Progress } from "@/components/ui/progress"
+import { saveTwitterToken } from "@/lib/admin-service"
 import { adminLogout } from "@/lib/auth-service"
+import { ModelUploader } from "@/components/model-uploader"
 
 export default function AdminPage() {
   const [token, setToken] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [modelFile, setModelFile] = useState<File | null>(null)
-  const [uploadProgress, setUploadProgress] = useState(0)
-  const [isUploading, setIsUploading] = useState(false)
-  const [uploadSuccess, setUploadSuccess] = useState(false)
-  const [uploadError, setUploadError] = useState<string | null>(null)
 
   const handleTokenSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -45,63 +40,6 @@ export default function AdminPage() {
       setError("Token kaydedilirken bir hata oluştu. Lütfen tekrar deneyin.")
     } finally {
       setIsSubmitting(false)
-    }
-  }
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    setUploadError(null)
-    setUploadSuccess(false)
-
-    if (!file) return
-
-    if (!file.name.endsWith(".pkl")) {
-      setUploadError("Lütfen geçerli bir PKL model dosyası seçin")
-      return
-    }
-
-    setModelFile(file)
-  }
-
-  const handleFileUpload = async () => {
-    if (!modelFile) return
-
-    setIsUploading(true)
-    setUploadProgress(0)
-    setUploadError(null)
-    setUploadSuccess(false)
-
-    try {
-      // Simüle edilmiş yükleme ilerleme durumu
-      const interval = setInterval(() => {
-        setUploadProgress((prev) => {
-          if (prev >= 95) {
-            clearInterval(interval)
-            return 95
-          }
-          return prev + 5
-        })
-      }, 100)
-
-      // Model dosyasını yükle
-      const formData = new FormData()
-      formData.append("file", modelFile)
-
-      await uploadModelFile(formData)
-
-      // Yükleme çubuğunu tamamla
-      clearInterval(interval)
-      setUploadProgress(100)
-      setUploadSuccess(true)
-      setModelFile(null)
-
-      // Dosya seçim alanını sıfırla
-      const fileInput = document.getElementById("model-file") as HTMLInputElement
-      if (fileInput) fileInput.value = ""
-    } catch (err: any) {
-      setUploadError(err.message || "Model dosyası yüklenirken bir hata oluştu")
-    } finally {
-      setIsUploading(false)
     }
   }
 
@@ -181,57 +119,8 @@ export default function AdminPage() {
                 <CardDescription>Eğitilmiş MBTI sınıflandırma modelini yükleyin</CardDescription>
               </CardHeader>
               <CardContent>
-                {uploadError && (
-                  <Alert variant="destructive" className="mb-4">
-                    <AlertCircle className="w-4 h-4" />
-                    <AlertTitle>Hata</AlertTitle>
-                    <AlertDescription>{uploadError}</AlertDescription>
-                  </Alert>
-                )}
-
-                {uploadSuccess && (
-                  <Alert className="mb-4 border-green-500 text-green-500">
-                    <CheckCircle2 className="w-4 h-4" />
-                    <AlertTitle>Başarılı</AlertTitle>
-                    <AlertDescription>MBTI model dosyası başarıyla yüklendi</AlertDescription>
-                  </Alert>
-                )}
-
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="model-file">Eğitilmiş MBTI Model Dosyası (.pkl)</Label>
-                    <div className="flex flex-col items-center p-6 border-2 border-dashed rounded-md border-slate-200 dark:border-slate-700">
-                      <BrainCircuit className="w-10 h-10 mb-4 text-slate-400" />
-                      <div className="mb-2 text-sm font-medium">{modelFile ? modelFile.name : "Dosya seçilmedi"}</div>
-                      <input id="model-file" type="file" accept=".pkl" onChange={handleFileChange} className="hidden" />
-                      <Button
-                        variant="outline"
-                        onClick={() => document.getElementById("model-file")?.click()}
-                        disabled={isUploading}
-                      >
-                        Model Dosyası Seç
-                      </Button>
-                      <p className="mt-2 text-xs text-center text-slate-500">
-                        Lütfen eğitilmiş MBTI sınıflandırma modelini içeren .pkl dosyasını seçin
-                      </p>
-                    </div>
-                  </div>
-
-                  {isUploading && (
-                    <div className="space-y-2">
-                      <Progress value={uploadProgress} className="h-2" />
-                      <p className="text-xs text-center text-slate-500">
-                        {uploadProgress < 100 ? "Model yükleniyor..." : "Yükleme tamamlandı!"}
-                      </p>
-                    </div>
-                  )}
-                </div>
+                <ModelUploader />
               </CardContent>
-              <CardFooter>
-                <Button onClick={handleFileUpload} disabled={isUploading || !modelFile} className="w-full">
-                  {isUploading ? "Yükleniyor..." : "Model Dosyasını Yükle"}
-                </Button>
-              </CardFooter>
             </Card>
           </TabsContent>
         </Tabs>
